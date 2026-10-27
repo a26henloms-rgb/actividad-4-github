@@ -4,7 +4,7 @@
 
 *Imagen: Como configurar DHCP (Fuente: [linuxconfig.org](https://linuxconfig.org/what-is-dhcp-and-how-to-configure-dhcp-server-in-linux))*
 
-### Esta guía explica cómo **instalar y configurar** un servidor DHCP básico utilizando el paquete `isc-dhcp-server` en distribuciones basadas en Debian/Ubuntu.
+> Esta guía explica cómo **instalar y configurar** un servidor DHCP básico utilizando el paquete `isc-dhcp-server` en distribuciones basadas en Debian/Ubuntu.
 
 ---
 
@@ -24,9 +24,7 @@
 
 Actualiza los repositorios e instala el servicio DHCP ejecutando el siguiente comando en la terminal:
 
-```
-Bash
-
+```Bash
 sudo apt update
 sudo apt install isc-dhcp-server
 ```
@@ -48,17 +46,13 @@ El servidor DHCP debe saber en qué interfaz de red local debe escuchar las peti
 
 1. **Abre el archivo de configuración por defecto**:
 
-```
-Bash
-
+```Bash
 sudo nano /etc/default/isc-dhcp-server
 ```
 
 2. **Localiza la línea `INTERFACESv4` y define la interfaz de red correspondiente (por ejemplo, `eth0` o `enp3s0`)**:
 
-```
-Plaintext
-
+```text
 INTERFACESv4="eth0"
 ```
 
@@ -70,17 +64,13 @@ Edita el archivo principal de parámetros para definir las concesiones de IP, la
 
 1. **Abre el archivo de configuración**:
 
-```
-Bash
-
+```Bash
 sudo nano /etc/dhcp/dhcpd.conf
 ```
 
 2. **Añade o adapta la siguiente estructura de red**:
 
-```
-Plaintext
-
+```text
 # Declaración de autoridad obligatoria
 authoritative;
 
@@ -120,17 +110,13 @@ Una vez guardada la configuración, aplica los cambios y comprueba el estado del
 
 * **Reiniciar el servicio**:
 
-```
-Bash
-
+```Bash
 sudo systemctl restart isc-dhcp-server
 ```
 
 * **Verificar el estado**:
 
-```
-Bash
-
+```Bash
 sudo systemctl status isc-dhcp-server
 ```
 ### Comandos útiles para gestionar el servicio
@@ -151,33 +137,26 @@ Después de reiniciar el servicio, comprueba que todo está correcto siguiendo e
 
 1. **Valida la sintaxis del archivo de configuración** (no reinicia nada, solo comprueba errores):
 
-```
-Bash
-
+```Bash
 sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
 ```
+<div style="page-break-after: always;"></div>
 
 2. **Comprueba que el servidor escucha en el puerto DHCP** (UDP 67):
 
-```
-Bash
-
+```Bash
 sudo ss -lunp | grep :67
 ```
 
 3. **Observa las peticiones de los clientes en tiempo real**:
 
-```
-Bash
-
+```Bash
 sudo journalctl -u isc-dhcp-server -f
 ```
 
 4. **Consulta las concesiones activas**:
 
-```
-Bash
-
+```Bash
 cat /var/lib/dhcp/dhcpd.leases
 ```
 
@@ -195,9 +174,7 @@ cat /var/lib/dhcp/dhcpd.leases
 > **Consejo:** pulsa `Ctrl + C` para salir del modo seguimiento (`-f`) de `journalctl`.
 ---
 
-💡 *[!NOTA] Si el servicio falla al iniciar, revisa los registros del sistema* (`sudo journalctl -u isc-dhcp-server`) *para detectar posibles errores de sintaxis en el archivo* `dhcpd.conf`.
-
-<div style="page-break-after: always;"></div>
+> 💡 **[!NOTA]** Si el servicio falla al iniciar, revisa los registros del sistema (`sudo journalctl -u isc-dhcp-server`) para detectar posibles errores de sintaxis en el archivo* `dhcpd.conf`.
 
 ## 5. Reservas de Direcciones IP 📌
 
@@ -205,17 +182,14 @@ Una **reserva** permite que un equipo concreto (identificado por su dirección M
 
 1. **Obtén la dirección MAC del cliente** (en el equipo cliente):
 
-```
-Bash
-
+```Bash
 ip link show
 ```
+<div style="page-break-after: always;"></div>
 
 2. **Añade la reserva dentro del bloque `subnet`** de `/etc/dhcp/dhcpd.conf`:
 
-```
-Plaintext
-
+```text
 host impresora {
     hardware ethernet 08:00:27:ab:cd:ef;
     fixed-address 192.168.1.50;
@@ -224,17 +198,13 @@ host impresora {
 
 3. **Comprueba la sintaxis antes de reiniciar**:
 
-```
-Bash
-
+```Bash
 sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
 ```
 
 4. **Reinicia el servicio**:
 
-```
-Bash
-
+```Bash
 sudo systemctl restart isc-dhcp-server
 ```
 
@@ -250,9 +220,7 @@ sudo systemctl restart isc-dhcp-server
 
 Para ver las IP asignadas en este momento:
 
-```
-Bash
-
+```Bash
 cat /var/lib/dhcp/dhcpd.leases
 ```
 
