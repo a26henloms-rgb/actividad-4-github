@@ -144,6 +144,55 @@ sudo systemctl status isc-dhcp-server
 | `sudo systemctl enable isc-dhcp-server` | Activa el inicio automático al arrancar el sistema |
 | `sudo systemctl disable isc-dhcp-server` | Desactiva el inicio automático |
 | `sudo journalctl -u isc-dhcp-server` | Consulta los registros del servicio para depurar errores |
+
+### Verificar que el servidor funciona
+
+Después de reiniciar el servicio, comprueba que todo está correcto siguiendo estos pasos:
+
+1. **Valida la sintaxis del archivo de configuración** (no reinicia nada, solo comprueba errores):
+
+```
+Bash
+
+sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
+```
+
+2. **Comprueba que el servidor escucha en el puerto DHCP** (UDP 67):
+
+```
+Bash
+
+sudo ss -lunp | grep :67
+```
+
+3. **Observa las peticiones de los clientes en tiempo real**:
+
+```
+Bash
+
+sudo journalctl -u isc-dhcp-server -f
+```
+
+4. **Consulta las concesiones activas**:
+
+```
+Bash
+
+cat /var/lib/dhcp/dhcpd.leases
+```
+
+### Mensajes habituales en el registro
+
+| Mensaje | Significado |
+|---------|-------------|
+| `DHCPDISCOVER` | Un cliente busca un servidor DHCP |
+| `DHCPOFFER` | El servidor ofrece una IP al cliente |
+| `DHCPREQUEST` | El cliente solicita la IP ofrecida |
+| `DHCPACK` | El servidor confirma la asignación |
+| `DHCPNAK` | El servidor rechaza la petición del cliente |
+| `no subnet declaration` | La interfaz no tiene una `subnet` que coincida en `dhcpd.conf` |
+
+> **Consejo:** pulsa `Ctrl + C` para salir del modo seguimiento (`-f`) de `journalctl`.
 ---
 
 💡 *[!NOTA] Si el servicio falla al iniciar, revisa los registros del sistema* (`sudo journalctl -u isc-dhcp-server`) *para detectar posibles errores de sintaxis en el archivo* `dhcpd.conf`.
