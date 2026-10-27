@@ -14,7 +14,8 @@
 * [2. Configuración de la Interfaz de Red](#2-configuración-de-la-interfaz-de-red-️)
 * [3. Configuración del Servidor (`dhcpd.conf`)](#3-configuración-del-servidor-dhcpdconf-️)
 * [4. Gestión del Servicio](#4-gestión-del-servicio-)
-* [5. Recursos Adicionales](#5-recursos-adicionales-)
+* [5. Reservas de Direcciones IP](#5-reservas-de-direcciones-ip-)
+* [6. Recursos Adicionales](#6-recursos-adicionales-)
 
 
 <div style="page-break-after: always;"></div>
@@ -149,7 +150,68 @@ sudo systemctl status isc-dhcp-server
 
 <div style="page-break-after: always;"></div>
 
-## 5. Recursos Adicionales 💎
+## 5. Reservas de Direcciones IP 📌
+
+Una **reserva** permite que un equipo concreto (identificado por su dirección MAC) reciba siempre la misma IP, sin dejar de usar DHCP. Es útil para impresoras, servidores o cámaras IP.
+
+1. **Obtén la dirección MAC del cliente** (en el equipo cliente):
+
+```
+Bash
+
+ip link show
+```
+
+2. **Añade la reserva dentro del bloque `subnet`** de `/etc/dhcp/dhcpd.conf`:
+
+```
+Plaintext
+
+host impresora {
+    hardware ethernet 08:00:27:ab:cd:ef;
+    fixed-address 192.168.1.50;
+}
+```
+
+3. **Comprueba la sintaxis antes de reiniciar**:
+
+```
+Bash
+
+sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
+```
+
+4. **Reinicia el servicio**:
+
+```
+Bash
+
+sudo systemctl restart isc-dhcp-server
+```
+
+### Parámetros de una reserva
+
+| Parámetro | Descripción | Ejemplo |
+|-----------|-------------|---------|
+| `host` | Nombre identificativo de la reserva (sin espacios) | `host impresora` |
+| `hardware ethernet` | Dirección MAC del cliente | `hardware ethernet 08:00:27:ab:cd:ef;` |
+| `fixed-address` | IP que se asignará siempre a ese cliente | `fixed-address 192.168.1.50;` |
+
+### Verificar las concesiones
+
+Para ver las IP asignadas en este momento:
+
+```
+Bash
+
+cat /var/lib/dhcp/dhcpd.leases
+```
+
+> **Importante:** la IP reservada debe estar **fuera del rango dinámico** (`range 192.168.1.100 192.168.1.200`) para evitar conflictos con otros clientes.
+
+---
+
+## 6. Recursos Adicionales 💎
 
 * 🔗 [Configuración de un servidor DHCP - Linux](https://www.javiercd.es/posts/servicios/dhcp/instalacion_y_configuracion_de_un_servidor_dhcp_en_linux/dhcp_ipv4/)
 * 📖 [Wikipedia: Dynamic Host Configuration Protocol](https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol)
