@@ -233,3 +233,10 @@ cat /var/lib/dhcp/dhcpd.leases
 * 🔗 [Configuración de un servidor DHCP - Linux](https://www.javiercd.es/posts/servicios/dhcp/instalacion_y_configuracion_de_un_servidor_dhcp_en_linux/dhcp_ipv4/)
 * 📖 [Wikipedia: Dynamic Host Configuration Protocol](https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol)
 * 🎦 [YouTube: Instalar y configurar ISC DHCP](https://www.youtube.com/watch?v=tduMWUhAQ0Q)
+
+## Información del proyecto 
+
+Esta documentación se ha elaborado utilizando Markdown. 
+
+El control de versiones se realiza mediante Git 
+y el repositorio remoto se encuentra alojado en GitHub. 
