@@ -240,3 +240,10 @@ Esta documentación se ha elaborado utilizando Markdown.
 
 El control de versiones se realiza mediante Git 
 y el repositorio remoto se encuentra alojado en GitHub. 
+
+## Próximas mejoras
+
+- Añadir una sección de configuración de reservas DHCP por dirección MAC.
+- Incluir un apartado de resolución de problemas con los errores más comunes y sus soluciones.
+- Ampliar la guía con la configuración de un servidor DHCP en alta disponibilidad (failover).
+- Añadir capturas de pantalla de cada paso de la instalación y configuración.
