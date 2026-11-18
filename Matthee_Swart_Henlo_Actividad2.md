@@ -15,7 +15,8 @@
 * [3. Configuración del Servidor (`dhcpd.conf`)](#3-configuración-del-servidor-dhcpdconf-️)
 * [4. Gestión del Servicio](#4-gestión-del-servicio-)
 * [5. Reservas de Direcciones IP](#5-reservas-de-direcciones-ip-)
-* [6. Recursos Adicionales](#6-recursos-adicionales-)
+* [6. Recomendaciones de seguridad](#6-recomendaciones-de-seguridad-)
+* [7. Recursos Adicionales](#7-recursos-adicionales-)
 
 
 <div style="page-break-after: always;"></div>
@@ -228,7 +229,30 @@ cat /var/lib/dhcp/dhcpd.leases
 
 ---
 
-## 6. Recursos Adicionales 💎
+## 6. Recomendaciones de seguridad 🔒
+
+Dado que el protocolo DHCP opera sin autenticación nativa y asigna parámetros críticos de red (puerta de enlace y DNS), es fundamental aplicar medidas de protección para evitar ataques de suplantación (*DHCP Spoofing*) o denegación de servicio (*DHCP Starvation*):
+
+1. **Restringir la interfaz de escucha (`INTERFACESv4`):**
+   Asegúrate de especificar únicamente la interfaz de red local interna en `/etc/default/isc-dhcp-server` (por ejemplo, `INTERFACESv4="eth0"`). Nunca dejes el servidor escuchando en interfaces expuestas a redes públicas o externas (WAN), ya que respondería a peticiones no autorizadas.
+
+2. **Limitar el acceso al puerto UDP 67 mediante cortafuegos:**
+   Configura reglas en el firewall del servidor (`ufw`) para permitir el tráfico hacia el puerto **UDP 67** únicamente desde la subred local definida en `dhcpd.conf` (`192.168.1.0/24`) ejecutando: `sudo ufw allow in on eth0 from 192.168.1.0/24 to any port 67 proto udp`
+
+3. **Proteger los archivos de configuración y concesiones:**
+   Verifica que `/etc/dhcp/dhcpd.conf` y `/var/lib/dhcp/dhcpd.leases` solo puedan ser modificados por el usuario `root` o el usuario del servicio `dhcpd`, evitando alteraciones no autorizadas en los rangos de IP o en los servidores DNS entregados a los clientes.
+
+4. **Activar DHCP Snooping en los switches de la red:**
+   A nivel de infraestructura, habilita *DHCP Snooping* en los switches gestionables para marcar como "puerto de confianza" (*trusted*) únicamente el puerto donde está conectado este servidor Linux. Esto bloquea servidores DHCP falsos (*rogue DHCP*) conectados por usuarios en otros puertos de la red.
+
+5. **Monitorizar el agotamiento del rango dinámico (`range`):**
+   Revisa periódicamente los registros con `sudo journalctl -u isc-dhcp-server` y el archivo `/var/lib/dhcp/dhcpd.leases`. Si observas cientos de peticiones `DHCPDISCOVER` con direcciones MAC distintas en pocos segundos, podrías estar sufriendo un ataque de *DHCP Starvation* destinado a agotar el rango `192.168.1.100 - 192.168.1.200`.
+
+> 💡 **[!NOTA]** El paquete `isc-dhcp-server` fue declarado en fin de vida (*End of Life*) por ISC. Para nuevos despliegues en producción, se recomienda planificar la migración hacia **ISC Kea DHCP** (`kea-dhcp4-server`), su sucesor oficial con mejor soporte de seguridad y APIs modernas.
+
+---
+
+## 7. Recursos Adicionales 💎
 
 * 🔗 [Configuración de un servidor DHCP - Linux](https://www.javiercd.es/posts/servicios/dhcp/instalacion_y_configuracion_de_un_servidor_dhcp_en_linux/dhcp_ipv4/)
 * 📖 [Wikipedia: Dynamic Host Configuration Protocol](https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol)
